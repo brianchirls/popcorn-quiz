@@ -18,6 +18,34 @@
 		explanation: 'It\'s the welder, obvi!'
 	});
 
+	popcorn.answer({
+		start: 11.338,
+		end: 12.38,
+		target: 'questions',
+		question: 0
+	});
+
+	popcorn.answer({
+		start: 12.38,
+		end: 13.512,
+		target: 'questions',
+		question: 1
+	});
+
+	popcorn.answer({
+		start: 13.588,
+		end: 14.504,
+		target: 'questions',
+		question: 2
+	});
+
+	popcorn.answer({
+		start: 14.637,
+		end: 15.924,
+		target: 'questions',
+		question: 3
+	});
+
 	popcorn.quiz({
 		start: 16.05,
 		end: 22.833,
