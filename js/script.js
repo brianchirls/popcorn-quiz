@@ -1,5 +1,7 @@
 (function () {
-	var popcorn = Popcorn('#audio');
+	var popcorn = Popcorn('#audio', {
+		frameAnimation: true
+	});
 
 	popcorn.quiz({
 		start: 3,

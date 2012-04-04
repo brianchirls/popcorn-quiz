@@ -10,6 +10,9 @@
 			start: function( event, options ) {
 			},
 			frame: function( event, options, time ) {
+				if (base.options.end - time <= 0.1) {
+					popcorn.pause();
+				}
 			},
 			end: function( event, options ) {
 			},
