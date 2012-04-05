@@ -26,6 +26,7 @@
 			}
 
 			rewind = function() {
+				this.pause();
 				this.currentTime = 0;
 			};
 
