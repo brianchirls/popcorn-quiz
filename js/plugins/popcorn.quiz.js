@@ -33,13 +33,13 @@
 			sounds = {
 				right: {
 					urls: [
-						'audio/ding.mp4',
+						'audio/ding.mp3',
 						'audio/ding.ogg'
 					]
 				},
 				wrong: {
 					urls: [
-						'audio/buzzer.mp4',
+						'audio/buzzer.mp3',
 						'audio/buzzer.ogg'
 					]
 				}
