@@ -15,7 +15,8 @@
 			question,
 			button,
 			element,
-			explanation;
+			explanation,
+			allowPause = false;
 
 		function loadSounds() {
 			var name, sound, i, obj, source, rewind;
@@ -75,6 +76,7 @@
 			}
 
 			popcorn.pause();
+			allowPause = false;
 
 			answer = i;
 			options.answer = i;
@@ -200,9 +202,10 @@
 			start: function( event, options ) {
 				base.removeClass(base.container, ['right','wrong']);
 				base.addClass(base.container, 'active');
+				allowPause = true;
 			},
 			frame: function( event, options, time ) {
-				if (base.options.end - time <= 0.1) {
+				if (allowPause && (base.options.end - time <= 0.1)) {
 					popcorn.pause();
 				}
 			},
