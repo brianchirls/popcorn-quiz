@@ -3,7 +3,9 @@
 "use strict";
 
 	var styleSheet,
-		console = window.console;
+		console = window.console,
+		sounds,
+		isiPad = navigator.userAgent.match(/iPad/i);
 
 	Popcorn.basePlugin( 'quiz' , function(options, base) {
 		var popcorn = this,
@@ -13,7 +15,49 @@
 			question,
 			explanation;
 
+		function loadSounds() {
+			var name, sound, i, obj, source, rewind;
+
+			if (sounds || isiPad) {
+				//already started loading
+				return;
+			}
+
+			rewind = function() {
+				this.currentTime = 0;
+			};
+
+			sounds = {
+				right: {
+					urls: [
+						'audio/ding.mp4',
+						'audio/ding.ogg'
+					]
+				},
+				wrong: {
+					urls: [
+						'audio/buzzer.mp4',
+						'audio/buzzer.ogg'
+					]
+				}
+			};
+
+			for (name in sounds) {
+				obj = sounds[name];
+				obj.audio = document.createElement('audio');
+				obj.audio.preload = true;
+				obj.audio.addEventListener('ended', rewind, false);
+				for (i = 0; i < obj.urls.length; i++) {
+					source = document.createElement('source');
+					source.src = obj.urls[i];
+					obj.audio.appendChild(source);
+				}
+			}
+		}
+
 		function clickAnswer(i) {
+			var status;
+
 			if (answer >= 0) {
 				//don't re-answer this until reset
 				return;
@@ -24,11 +68,16 @@
 
 			base.addClass(answers[i].label.parentNode, 'answered');
 			if (base.options.correct === i) {
-				base.addClass(base.container, 'right');
+				status = 'right';
 				options.correct = true;
 			} else {
-				base.addClass(base.container, 'wrong');
+				status = 'wrong';
 				options.correct = false;
+			}
+
+			base.addClass(base.container, status);
+			if (sounds && sounds[status] && sounds[status].audio && sounds[status].audio.networkState > 0) {
+				sounds[status].audio.play();
 			}
 
 			if (typeof options.onAnswer === 'function') {
@@ -57,6 +106,8 @@
 		if (!answers || !answers.length) {
 			return;
 		}
+
+		loadSounds();
 
 		guid = 'question-' + Popcorn.guid();
 
