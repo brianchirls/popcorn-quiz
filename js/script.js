@@ -1,4 +1,6 @@
 (function () {
+	Popcorn.plugin.debug = true;
+
 	var popcorn = Popcorn('#audio', {
 		frameAnimation: true
 	});

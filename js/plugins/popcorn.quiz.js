@@ -1,14 +1,112 @@
-(function (Popcorn) {
+(function (Popcorn, window) {
 
 "use strict";
 
-	var styleSheet;
+	var styleSheet,
+		console = window.console,
+		sounds,
+		isiPad = navigator.userAgent.match(/iPad/i);
 
 	Popcorn.basePlugin( 'quiz' , function(options, base) {
 		var popcorn = this,
 			media = popcorn.media,
 			guid,
-			i, ul, li, answer, answers;
+			i, ul, li, answer, answers,
+			question,
+			button,
+			element,
+			explanation,
+			allowPause = false;
+
+		function loadSounds() {
+			var name, sound, i, obj, source, rewind;
+
+			if (sounds || isiPad) {
+				//already started loading
+				return;
+			}
+
+			rewind = function() {
+				this.pause();
+				this.currentTime = 0;
+			};
+
+			sounds = {
+				right: {
+					urls: [
+						'audio/ding.mp3',
+						'audio/ding.ogg'
+					]
+				},
+				wrong: {
+					urls: [
+						'audio/buzzer.mp3',
+						'audio/buzzer.ogg'
+					]
+				}
+			};
+
+			for (name in sounds) {
+				obj = sounds[name];
+				obj.audio = document.createElement('audio');
+				obj.audio.preload = true;
+				obj.audio.addEventListener('ended', rewind, false);
+				for (i = 0; i < obj.urls.length; i++) {
+					source = document.createElement('source');
+					source.src = obj.urls[i];
+					obj.audio.appendChild(source);
+				}
+			}
+		}
+
+		function proceed() {
+			var endTime = options.end - 0.1;
+			if (popcorn.currentTime() < endTime) {
+				popcorn.currentTime(endTime);
+			}
+			popcorn.play();
+		}
+
+		function clickAnswer(i) {
+			var status;
+
+			if (answer >= 0) {
+				//don't re-answer this until reset
+				return;
+			}
+
+			popcorn.pause();
+			allowPause = false;
+
+			answer = i;
+			options.answer = i;
+
+			base.addClass(answers[i].label.parentNode, 'answered');
+			if (base.options.correct === i) {
+				status = 'right';
+				options.correct = true;
+			} else {
+				status = 'wrong';
+				options.correct = false;
+			}
+
+			base.addClass(base.container, status);
+			if (sounds && sounds[status] && sounds[status].audio && sounds[status].audio.networkState > 0) {
+				sounds[status].audio.play();
+			}
+
+			if (typeof options.onAnswer === 'function') {
+				if (Popcorn.plugin.debug) {
+					options.onAnswer(options);
+				} else {
+					try {
+						options.onAnswer(options);
+					} catch (e) {
+						console.log('Error in quiz onAnswer event:' + e.message);
+					}
+				}
+			}
+		}
 
 		if (!options.question || !options.target || !options.answers) {
 			return;
@@ -20,6 +118,8 @@
 			return;
 		}
 
+		loadSounds();
+
 		guid = 'question-' + Popcorn.guid();
 
 		if (!styleSheet) {
@@ -28,9 +128,14 @@
 			styleSheet.appendChild(
 				document.createTextNode(
 					'.popcorn-quiz { display: none; }\n' +
+					'.popcorn-quiz > .popcorn-quiz-explanation { display: none; }\n' +
+					'.popcorn-quiz.right > .popcorn-quiz-explanation, .popcorn-quiz.wrong > .popcorn-quiz-explanation { display: block; }\n' +
 					'.popcorn-quiz > ul { list-style: none; }\n' +
 					'.popcorn-quiz-answer { cursor: pointer; }\n' +
 					'.popcorn-quiz-answer > label { cursor: pointer; }\n' +
+					'.popcorn-quiz.wrong .popcorn-quiz-answer, .popcorn-quiz.right .popcorn-quiz-answer { color: gray; }\n' +
+					'.popcorn-quiz.wrong .popcorn-quiz-answer.answered { text-decoration: line-through; }\n' +
+					'.popcorn-quiz.wrong .popcorn-quiz-answer.correct, .popcorn-quiz.right .popcorn-quiz-answer.correct { font-weight: bold; color: darkgreen; }\n' +
 					'.popcorn-quiz.active { display: block; }\n'
 			));
 			document.head.appendChild(styleSheet);
@@ -38,8 +143,10 @@
 
 		base.makeContainer();
 
-		//todo: put this in an element for styling
-		base.container.appendChild(document.createTextNode(options.question));
+		question = document.createElement('p');
+		base.addClass(question, 'popcorn-quiz-question');
+		question.appendChild(document.createTextNode(options.question));
+		base.container.appendChild(question);
 
 		ul = document.createElement('ul');
 		base.container.appendChild(ul);
@@ -57,19 +164,48 @@
 			answer.label.appendChild(answer.input);
 			answer.label.appendChild(document.createTextNode(answer.text));
 
+			answer.label.addEventListener('click', (function(i) {
+				return function() {
+					clickAnswer(i);
+				};
+			}(i)), false);
+
 			li = document.createElement('li');
 			li.appendChild(answer.label);
 			base.addClass(li, ['answer-' + i, 'popcorn-quiz-answer']);
 
 			ul.appendChild(li);
+
+			if (i === options.correct) {
+				base.addClass(li, 'correct');
+			}
 		}
+		answer = -1;
+
+		element = document.createElement('div');
+		base.addClass(element, 'popcorn-quiz-explanation');
+
+		if (options.explanation) {
+			explanation = document.createElement('div');
+			explanation.innerHTML = options.explanation;
+			element.appendChild(explanation);
+		}
+
+		button = document.createElement('button');
+		button.appendChild(document.createTextNode('Next Question >>'));
+		button.addEventListener('click', proceed);
+		element.appendChild(button);
+
+		base.container.appendChild(element);
 
 		return {
 			start: function( event, options ) {
+				base.removeClass(base.container, ['right','wrong']);
 				base.addClass(base.container, 'active');
+				allowPause = true;
 			},
 			frame: function( event, options, time ) {
-				if (base.options.end - time <= 0.1) {
+				if (allowPause && (base.options.end - time <= 0.1)) {
 					popcorn.pause();
 				}
 			},
@@ -80,4 +216,4 @@
 			}
 		};
 	});
-})( Popcorn );
+})( Popcorn, window );
