@@ -13,6 +13,8 @@
 			guid,
 			i, ul, li, answer, answers,
 			question,
+			button,
+			element,
 			explanation;
 
 		function loadSounds() {
@@ -55,6 +57,14 @@
 			}
 		}
 
+		function proceed() {
+			var endTime = options.end - 0.1;
+			if (popcorn.currentTime() < endTime) {
+				popcorn.currentTime(endTime);
+			}
+			popcorn.play();
+		}
+
 		function clickAnswer(i) {
 			var status;
 
@@ -62,6 +72,8 @@
 				//don't re-answer this until reset
 				return;
 			}
+
+			popcorn.pause();
 
 			answer = i;
 			options.answer = i;
@@ -91,10 +103,6 @@
 					}
 				}
 			}
-		}
-
-		function proceed() {
-			popcorn.play();
 		}
 
 		if (!options.question || !options.target || !options.answers) {
@@ -171,12 +179,21 @@
 		}
 		answer = -1;
 
+		element = document.createElement('div');
+		base.addClass(element, 'popcorn-quiz-explanation');
+
 		if (options.explanation) {
 			explanation = document.createElement('div');
-			base.addClass(explanation, 'popcorn-quiz-explanation');
 			explanation.innerHTML = options.explanation;
-			base.container.appendChild(explanation);
+			element.appendChild(explanation);
 		}
+
+		button = document.createElement('button');
+		button.appendChild(document.createTextNode('Next Question >>'));
+		button.addEventListener('click', proceed);
+		element.appendChild(button);
+
+		base.container.appendChild(element);
 
 		return {
 			start: function( event, options ) {
