@@ -84,10 +84,8 @@
 			base.addClass(answers[i].label.parentNode, 'answered');
 			if (base.options.correct === i) {
 				status = 'right';
-				options.correct = true;
 			} else {
 				status = 'wrong';
-				options.correct = false;
 			}
 
 			base.addClass(base.container, status);
@@ -97,10 +95,10 @@
 
 			if (typeof options.onAnswer === 'function') {
 				if (Popcorn.plugin.debug) {
-					options.onAnswer(options);
+					options.onAnswer.call(base, options);
 				} else {
 					try {
-						options.onAnswer(options);
+						options.onAnswer.call(base, options, answer);
 					} catch (e) {
 						console.log('Error in quiz onAnswer event:' + e.message);
 					}
