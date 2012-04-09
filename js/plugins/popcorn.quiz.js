@@ -220,6 +220,10 @@
 				}
 			},
 			_teardown: function( options ) {
+				if (base.container && base.container.parentNode) {
+					base.container.parentNode.removeChild(base.container);
+					
+				}
 			}
 		};
 	});
