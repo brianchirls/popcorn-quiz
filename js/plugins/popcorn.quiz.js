@@ -200,7 +200,6 @@
 
 		return {
 			start: function( event, options ) {
-				base.removeClass(base.container, ['right','wrong']);
 				base.addClass(base.container, 'active');
 				allowPause = true;
 			},
@@ -210,7 +209,17 @@
 				}
 			},
 			end: function( event, options ) {
+				var i;
 				base.removeClass(base.container, 'active');
+
+				if (popcorn.currentTime() < options.start) {
+					for (i = 0; i < answers.length; i++) {
+						base.removeClass(answers[i].label.parentNode, 'answered');
+						answers[i].input.checked = false;
+					}
+					answer = -1;
+					base.removeClass(base.container, ['right', 'wrong']);
+				}
 			},
 			_teardown: function( options ) {
 			}
