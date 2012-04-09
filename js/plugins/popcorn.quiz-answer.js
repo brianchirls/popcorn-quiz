@@ -39,20 +39,25 @@
 				var i;
 				elements = document.querySelectorAll(selector);
 				for (i = 0; i < elements.length; i++) {
-					base.addClass(elements[i], 'highlight');
+					base.addClass(elements[i], ['highlight', 'revealed']);
 				}
 			},
 			frame: function( event, options, time ) {
 			},
 			end: function( event, options ) {
-				var i;
+				var i, rewind;
 
 				if (!elements) {
 					return;
 				}
 
+				rewind = (popcorn.currentTime() < options.start);
+
 				for (i = 0; i < elements.length; i++) {
 					base.removeClass(elements[i], 'highlight');
+					if (rewind) {
+						base.removeClass(elements[i], 'revealed');
+					}
 				}
 			},
 			_teardown: function( options ) {
