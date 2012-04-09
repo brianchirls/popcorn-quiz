@@ -1,8 +1,30 @@
 (function () {
 	Popcorn.plugin.debug = true;
 
-	var popcorn = Popcorn('#audio', {
+	var popcorn, title, questions = [];
+
+	function setQuestionTitle(options) {
+		var i = this.allEvents.indexOf(this);
+		if (i >= 0) {
+			title.nodeValue = 'Question ' + (i + 1) + ' of ' + this.allEvents.length;
+		}
+	}
+
+	function clearQuestionTitle() {
+		title.nodeValue = '';
+	}
+
+	title = document.getElementById('question-title');
+	title.appendChild(document.createTextNode(''));
+	title = title.childNodes[0];
+
+	popcorn = Popcorn('#audio', {
 		frameAnimation: true
+	});
+
+	popcorn.defaults('quiz', {
+		onStart: setQuestionTitle,
+		onEnd: clearQuestionTitle
 	});
 
 	popcorn.quiz({

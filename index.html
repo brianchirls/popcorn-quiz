@@ -4,12 +4,36 @@
 		<meta charset="UTF-8">
 		<title>Popcorn Quiz</title>
 		<style type="text/css">
+
+		.popcorn-quiz {
+			max-width: 768px;
+			margin: 0 auto;
+			padding: 20px;
+			border: darkGray 2px solid;
+			border-radius: 12px;
+		}
+
+		/*
+		Un-comment the next two style blocks to make answers reveal themselves as they are read
+		*/
+		/*
+		.popcorn-quiz-answer {
+			display: none;
+		}
+
+		.popcorn-quiz-answer.revealed {
+			display: block;
+		}
+		*/
+
 		</style>
 		<!--[if IE 8]>
 		<script type="text/javascript" src="js/external/popcorn.js"></script>
 		<![endif]-->
 	</head>
 	<body>
+		<h1>Pop Quiz</h1><!-- quiz title goes in here -->
+		<h2 id="question-title"></h2>
 		<audio id="audio" controls>
 			<source src="audio/robotquiz.mp3" type="audio/mp3"/>
 			<source src="audio/robotquiz.ogg" type="audio/ogg"/>
