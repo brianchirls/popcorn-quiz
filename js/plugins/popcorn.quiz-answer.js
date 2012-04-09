@@ -42,8 +42,6 @@
 					base.addClass(elements[i], ['highlight', 'revealed']);
 				}
 			},
-			frame: function( event, options, time ) {
-			},
 			end: function( event, options ) {
 				var i, rewind;
 
@@ -59,9 +57,8 @@
 						base.removeClass(elements[i], 'revealed');
 					}
 				}
-			},
-			_teardown: function( options ) {
 			}
+			//_teardown isn't necessary hear, since we didn't actually add anything
 		};
 	});
 })( Popcorn );
