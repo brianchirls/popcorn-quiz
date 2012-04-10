@@ -195,7 +195,7 @@
 		}
 
 		button = document.createElement('button');
-		button.appendChild(document.createTextNode('Next Question >>'));
+		button.appendChild(document.createTextNode('Continue >>'));
 		button.addEventListener('click', proceed);
 		element.appendChild(button);
 
