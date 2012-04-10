@@ -1,5 +1,4 @@
 // PLUGIN: mediaspawner
-
 /**
   * mediaspawner Popcorn Plugin.
   * Adds Video/Audio to the page using Popcorns players
@@ -11,126 +10,52 @@
   * Example:
     var p = Popcorn('#video')
       .mediaspawner( {
-        mediaType: "youtube",
-        mediaSource: "http://www.youtube.com/watch?v=bUB1L3zGVvc",
-        target: "tumblrdiv",
+        source: "http://www.youtube.com/watch?v=bUB1L3zGVvc",
+        target: "mediaspawnerdiv",
         start: 1,
         end: 10,
-        caption: "This is a test. We are assuming conrol. We are assuming control." 
+        caption: "This is a test. We are assuming conrol. We are assuming control."
       })
   *
   */
+( function ( Popcorn, global ) {
+  var PLAYER_URL = "http://popcornjs.org/code/modules/player/popcorn.player.js",
+    urlRegex = /(?:http:\/\/www\.|http:\/\/|www\.|\.|^)(youtu|vimeo|soundcloud)/,
+    youtubeScript, vimeoScript, soundcloudScript, playerModuleScript;
 
-(function( Popcorn, global ) {
+  youtubeScript = vimeoScript = soundcloudScript = playerModuleScript = false;
 
-  var processMedia = {
-    youtube: function( options ) {
-      var target = document.getElementById( options.target );
-      if ( !Popcorn.youtube ){
-        Popcorn.getScript( "http://popcornjs.org/code/players/youtube/popcorn.youtube.js", function() {
-          var script = document.createElement( "script" );
-          script.src = "http://popcornjs.org/code/players/youtube/popcorn.youtube.js";
-          document.head.appendChild( script );
-
-          options.popcorn = Popcorn.youtube( "#" + options._container.id, options.mediaSource );
-          options._container.style.display = "none";
-          target && target.appendChild( options._container );
-        });
-      }
-      else {
-        options.popcorn = Popcorn.youtube( "#" + options._container.id, options.mediaSource );
-        options._container.style.display = "none";
-        target && target.appendChild( options._container );
-      }
+  var setPlayerTypeLoaded = {
+    vimeo: function ( ) {
+      vimeoScript = true;
     },
-    vimeo: function( options ){
-      var target = document.getElementById( options.target );
-      if ( !Popcorn.vimeo ){
-        Popcorn.getScript( "http://popcornjs.org/code/players/vimeo/popcorn.vimeo.js", function() {
-          var script = document.createElement( "script" );
-          script.src = "http://popcornjs.org/code/players/vimeo/popcorn.vimeo.js";
-          document.head.appendChild( script );
-
-          options.popcorn = Popcorn.vimeo( options._container.id, options.mediaSource );
-          options._container.style.display = "none";
-          target && target.appendChild( options._container ); 
-        });
-      }
-      else {
-        options.popcorn = Popcorn.vimeo( options._container.id, options.mediaSource );
-        options._container.style.display = "none";
-        target && target.appendChild( options._container );
-      }
+    soundcloud: function ( ) {
+      soundcloudScript = true;
     },
-    soundcloud: function( options ){
-      var target = document.getElementById( options.target );
-      if ( !Popcorn.soundcloud ){
-        Popcorn.getScript( "http://popcornjs.org/code/players/soundcloud/popcorn.soundcloud.js", function() {
-          var script = document.createElement( "script" );
-          script.src = "http://popcornjs.org/code/players/soundcloud/popcorn.soundcloud.js";
-          document.head.appendChild( script );
-
-          options.popcorn = Popcorn.soundcloud( options._container.id, options.mediaSource );
-          options._container.style.display = "none";
-          target && target.appendChild( options._container );
-        });
-      }
-      else {
-        options.popcorn = Popcorn.soundcloud( options._container.id, options.mediaSource );
-        options._container.style.display = "none";
-        target && target.appendChild( options._container );
-      }
-    },
-    video: function( options ){
-      var video = document.createElement( "video" ),
-          src,
-          target = document.getElementById( options.target ),
-          info,
-          thing;
-
-      video.poster = options.video.poster;
-      video.controls = options.video.controls;
-      thing = options.video.source;
-
-      for( info in thing ){
-        src = document.createElement( "source" );
-        src.id = thing[ info ].id;
-        src.src = thing[ info ].src;
-        src.type = thing[ info ].type;
-        src.codecs = thing[ info ].codecs;
-
-        video.appendChild( src );
-      }
-
-      options._container.appendChild( video );
-      options._container.style.display = "none";
-      target && target.appendChild( options._container );
-    },
-    audio: function( options ){
-      var audio = document.createElement( "audio" ),
-          src,
-          target = document.getElementById( options.target ),
-          info,
-          thing;
-
-      audio.controls = options.audio.controls;
-      thing = options.audio.source;
-      
-      for( info in thing ){
-        src = document.createElement( "source" );
-        src.src = thing[ info ].src;
-        src.type = thing[ info ].type;
-
-        audio.appendChild( src );
-      }
-
-      options._container.appendChild( audio );
-      options._container.style.display = "none";
-      target && target.appendChild( options._container );
+    youtube: function ( ) {
+      youtubeScript = true;
     }
   };
 
-  Popcorn.plugin( "mediaspawner" , {
+  var isPlayerTypeLoaded = {
+    vimeo: function ( ) {
+      return vimeoScript;
+    },
+    soundcloud: function ( ) {
+      return soundcloudScript;
+    },
+    youtube: function ( ) {
+      return youtubeScript;
+    }
+  }
+
+  function addScript( url ) {
+    var script = document.createElement( "script" );
+    script.src = url;
+    document.head.appendChild( script );
+  }
+
+  Popcorn.plugin( "mediaspawner", {
     manifest: {
       about: {
         name: "Popcorn Media Spawner Plugin",
@@ -139,15 +64,7 @@
         website: "mschranz.wordpress.com"
       },
       options: {
-        mediaType: {
-          elem: "select",
-          options: [ "YOUTUBE", "VIMEO", "SOUNDCLOUD", "VIDEO", "AUDIO"],
-          label: "Media Type:"
-        },
-        /*
-         * mediaSource is only used with Youtube/Vimeo/Soundcloud.
-         */
-        mediaSource: {
+        source: {
           elem: "input",
           type: "text",
           label: "Media Source:"
@@ -157,7 +74,7 @@
           type: "text",
           label: "Media Caption:"
         },
-        target: "tumblr-container",
+        target: "mediaspawner-container",
         start: {
           elem: "input",
           type: "number",
@@ -167,79 +84,173 @@
           elem: "input",
           type: "number",
           label: "End_Time"
-        },
-        video: {
-          elem: "input",
-          type: "Idontknowwhattocall",
-          label: "Video JSON Blob"
-        },
-        audio: {
-          elem: "input",
-          type: "Idontknowwhattocall",
-          label: "Audio JSON Blob"
         }
       }
     },
-    _setup: function( options ) {
+    _setup: function ( options ) {
       var target = document.getElementById( options.target ),
-          validType,
           caption = options.caption || "",
-          pop;
-
-      // Valid types of retrieval requests
-      validType = function( type ) {
-        return ( [ "youtube", "vimeo", "soundcloud", "video", "audio" ].indexOf( type ) > -1 );
-      };
-
-      // Lowercase the types incase user enters it in another way
-      options.mediaType = options.mediaType.toLowerCase();
-
-      !validType( options.mediaType ) && Popcorn.error( "Invalid Media Type.");
+          mediaType;
 
       // Check if mediaSource is passed and mediaType is NOT audio/video
-      ( !options.mediaSource && ( options.mediaType === "youtube" || options.mediaType === "vimeo" || options.mediaType === "soundcloud" ) ) && Popcorn.error( "Error. MediaSource must be specified for all types except HTML5 video and audio." );
+      !options.source && Popcorn.error( "Error. Source must be specified." );
 
       // Check if target container exists
       ( !target && Popcorn.plugin.debug ) && Popcorn.error( "Target MediaSpawner container doesn't exist." );
 
-      // Check if video exists in options if mediaType is video
-      ( !options.video && options.mediaType === "video" ) && Popcorn.error( "Must provide video option when using HTML5 Video.");
-
-      // Check if audio exists in options if mediaType is audio
-      ( !options.audio && options.mediaType === "audio" ) && Popcorn.error( "Must provide audio option when using HTML5 Audio.");
-
       // Create seperate container for plugin
       options._container = document.createElement( "div" );
-      options._container.id = "mediaSpawnerdiv-" + Popcorn.guid();
-      options._container.innerHTML = caption + "<br/>";
-      
+      options._container.id = "mediaSpawnerdiv-" + Popcorn.guid( );
+      options._container.innerHTML = caption;
       document.body.appendChild( options._container );
-      processMedia[ options.mediaType ]( options );
+      options._container.style.display = "none";
+      target && target.appendChild( options._container );
+
+      // Change target reference to the id of the new container we created
+      target = options._container.id;
+
+      function findMediaType( url ) {
+        var regexResult = urlRegex.exec( url );
+        if ( regexResult ) {
+          mediaType = regexResult[ 1 ];
+        } else {
+          mediaType = "object";
+        }
+      }
+      findMediaType( options.source );
+
+      // Store Reference to Type for use in end
+      options.type = mediaType;
+
+      function flashCallback( type ) {
+        var script;
+
+        // our regex only handles youtu ( incase the url looks something like youtu.be )
+        if ( type === "youtu" ) {
+          type = "youtube";
+        }
+
+        if ( !window.Popcorn[ type ] && !isPlayerTypeLoaded[ type ]( ) ) {
+          script = document.createElement( "script" );
+          script.src = "http://popcornjs.org/code/players/" + type + "/popcorn." + type + ".js";
+          document.head.appendChild( script );
+          setPlayerTypeLoaded[ type ]( );
+        }
+
+        // If player type script needed to be loaded, keep checking that is has before calling
+        // Popcorn.smart
+        function checkPlayerTypeLoaded( ) {
+          if ( !window.Popcorn[ type ] ) {
+            checkPlayerTypeLoaded( );
+          } else {
+            options.popcorn = Popcorn.smart( "#" + target, options.source );
+          }
+        }
+
+        setTimeout( checkPlayerTypeLoaded, 300 );
+      }
+
+      function html5CallBack( ) {
+        if( options.source.type === "video" ) {
+          var video = document.createElement( "video" ),
+              src,
+              info,
+              mimeType;
+
+          video.poster = options.source.poster;
+          video.controls = options.source.controls;
+          mimeType = options.source.sources;
+
+          for( info in mimeType ) {
+            src = document.createElement( "source" );
+            src.id = mimeType[ info ].id;
+            src.src = mimeType[ info ].src;
+            src.type = mimeType[ info ].type;
+            src.codecs = mimeType[ info ].codecs;
+
+            video.appendChild( src );
+          }
+
+          options._container.appendChild( video );
+        }
+        else {
+          var audio = document.createElement( "audio" ),
+              src,
+              info,
+              mimeType;
+
+          audio.controls = options.source.controls;
+          mimeType = options.source.sources;
+      
+          for( info in mimeType ) {
+            src = document.createElement( "source" );
+            src.src = mimeType[ info ].src;
+            src.type = mimeType[ info ].type;
+
+            audio.appendChild( src );
+          }
+
+          options._container.appendChild( audio );
+        }
+      }
+
+      // If Player script needed to be loaded, keep checking until it is and then fire readycallback
+      function isPlayerReady( ) {
+        if ( !window.Popcorn.player ) {
+          setTimeout( function ( ) {
+            isPlayerReady( );
+          }, 300 );
+        } else {
+          playerModuleScript = true;
+          if( mediaType !== "object" ) {
+            flashCallback( mediaType );
+          }
+          else {
+            html5CallBack( );
+          }
+        }
+      }
+
+      // If player script isn't present, retrieve script
+      if ( !window.Popcorn.player && !playerModuleScript ) {
+        addScript( PLAYER_URL );
+        isPlayerReady( );
+      } else {
+        if( mediaType !== "object" ) {
+          flashCallback( mediaType );
+        }
+        else {
+          html5CallBack( );
+        }
+      }
+
     },
-    start: function( event, options ){
-      if ( options._container ) {
+    start: function ( event, options ) {
+      if (options._container) {
         options._container.style.display = "";
       }
     },
-    end: function( event, options ){
-      var t;
-      if( options._container ){
+    end: function ( event, options ) {
+      if ( options._container ) {
         options._container.style.display = "none";
       }
 
-      // Get reference to Audio/Video element if this is the media type. Pause it on end.
-      if( options.mediaType === "video" ){
-        t = options._container.getElementsByTagName( "video" )[ 0 ];
-        t.pause();
-      }
-      else if( options.mediaType === "audio" ){
-        t = options._container.getElementsByTagName( "audio" )[ 0 ];
-        t.pause();
+      if ( options.type === "object" ) {
+        var media;
+
+        if( options.source.type === "video" ) {
+          media = options._container.getElementsByTagName( "video" )[ 0 ];
+          media.pause( );
+        }
+        else if( options.source.type === "audio" ) {
+          media = options._container.getElementsByTagName( "audio" )[ 0 ];
+          media.pause( );
+        }
       }
     },
-    _teardown: function( options ){
-      options.popcorn.destory && options.popcorn.destroy();
+    _teardown: function ( options ) {
+      options.popcorn && options.popcorn.destory && options.popcorn.destroy( );
       document.getElementById( options.target ) && document.getElementById( options.target ).removeChild( options._container );
     }
   });
-})( Popcorn, this );
+})(Popcorn, this);
