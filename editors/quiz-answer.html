@@ -1,0 +1,179 @@
+<!--  This Source Code Form is subject to the terms of the MIT license
+      If a copy of the MIT license was not distributed with this file, you can
+      obtain one at http://www.mozillapopcorn.org/butter-license.txt -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      table {
+        font-family: helvetica !important;
+        color: #fff !important;
+        border: white solid 1px;
+      }
+
+      table:first-child {
+        float: left;
+        margin-right: 1em;
+      }
+
+      #answers > tr > td:first-child {
+        text-align: right;
+      }
+
+      td {
+        vertical-align: top;
+      }
+
+      p#message {
+        color: #FF0000;
+      }
+    </style>
+    <script type="text/javascript" src="../butter/src/dialog/dialog-comm.js"></script>
+    <script type="text/javascript">
+      (function(){
+        var _comm = new Comm(),
+          elementNames = ['target', 'question', 'index'],
+          elements = {},
+          start, end, answerIndex;
+
+        document.addEventListener( "DOMContentLoaded", function( e ){
+
+          function sendData( alsoClose ){
+            alsoClose = !!alsoClose; 
+            var i, answerInputs,
+              answers = [], popcornOptions;
+
+            popcornOptions = {
+              start: start,
+              end: end,
+              question: elements.question.value,
+              target: elements.target.value
+            };
+
+            answerInputs = document.querySelectorAll('#answers input');
+            for (i = 0; i < answerInputs.length; i++) {
+              if (answerInputs[i].value) {
+                answers.push(answerInputs[i].value);
+                if (i === elements.correct.value) {
+                  popcornOptions.correct = answers.length - 1;
+                }
+              }
+            }
+            popcornOptions.correct = answers.indexOf(popcornOptions.correct);
+
+            document.getElementById( "message" ).innerHTML = "";
+            _comm.send( "submit", {
+              eventData: popcornOptions,
+              alsoClose: alsoClose
+            });
+          } //sendData
+
+          function okPressed( e ) {
+            sendData( true );
+          }
+
+          function cancelPressed( e ) {
+            _comm.send( "cancel" );
+          }
+
+          function updateTrackEvent( e ){
+            var popcornOptions = e.data.popcornOptions || e.data,
+                targets = e.data.targets,
+                i, l, input;
+
+            start = popcornOptions.start;
+            end = popcornOptions.end;
+
+            if (window.parent) {
+              window.parent.postMessage({
+                msg: 'request-quiz-questions',
+                start: start,
+                end: end
+              }, '*');
+            }
+
+            //load target values
+            if (targets) {
+              for( i = 0, l = targets.length; i < l; i++ ) {
+                if ( i < elements.target.childNodes.length ) {
+                  input = elements.target.childNodes[i];
+                  input.childNodes[0].nodeValue = targets[i];
+                } else {
+                  input = document.createElement( "OPTION" );
+                  input.appendChild( document.createTextNode( targets[i] ) );
+                  elements.target.appendChild(input);
+                }
+                input.value = targets[ i ];
+                if( popcornOptions.target === targets[ i ] ) {
+                  elements.target.value = targets[ i ];
+                }
+              }
+              //delete any extra options
+              for (i = l; i < elements.target.childNodes.length; i++) {
+                elements.target.removeChild(elements.target.childNodes[i]);
+              }
+            }
+   
+          }
+
+          var name, i;
+
+          if (window.parent) {
+            window.addEventListener('message', function(e) {
+              var answers, i;
+              if (typeof e.data === 'object' && e.data.msg === 'response-quiz-questions' &&
+                e.data.answers) {
+
+                answers = e.data.answers;
+              }
+            }, false);
+          }
+
+          for (i = 0; i < elementNames.length; i++) {
+            name = elementNames[i];
+            elements[name] = document.getElementById(name);
+            name = elements[name];
+            if (name.nodeName === 'INPUT' || name.nodeName === 'TEXTAREA' ||
+              name.nodeName === 'SELECT') {
+                name.addEventListener( "change", function( e ){
+                  sendData( false );
+                }, false );
+            }
+          }
+
+          document.addEventListener( "keydown", function( e ) {
+            if( e.keyCode === 13 ) {
+              okPressed( e );
+            } else if( e.keyCode === 27 ) {
+              cancelPressed( e );
+            }
+          }, false);
+
+          _comm.listen( "trackeventupdated", updateTrackEvent);
+          _comm.listen( "trackeventdata", updateTrackEvent);
+
+          _comm.listen( "trackeventupdatefailed", function( e ) {
+            if( e.data === "invalidtime" ){
+              document.getElementById( "message" ).innerHTML = "You've entered an invalid start or end time. Please verify that they are both greater than 0, the end time is equal to or less than the media's duration, and that the start time is less than the end time.";
+            } //if
+          });
+
+        }, false );
+      })();
+    </script>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td>Target</td>
+        <td><select id="target"></select></td>
+      </tr>
+      <tr>
+        <td>Question</td>
+        <td><select id="question"></select><input type="text" id="index"/></td>
+      </tr>
+    </table>
+    <p id="message"></p>
+  </body>
+</html>
