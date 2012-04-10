@@ -84,5 +84,6 @@
 				type: "number",
 				label: "End Time"
 			}
-		});
+		}
+	});
 })( Popcorn );
