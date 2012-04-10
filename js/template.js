@@ -26,6 +26,12 @@ document.addEventListener( "DOMContentLoaded", function( e ){
           score.nodeValue = 'Score: ' + points + '/' + outOf;
         }
 
+        function setupQuiz(options) {
+          if (this.container) {
+            this.container.setAttribute('data-butter-exclude', 'true');
+          }
+        }
+
         function startQuiz(options) {
           var i = this.allEvents.indexOf(this);
           if (i >= 0) {
@@ -69,11 +75,46 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         }
         score = score.childNodes[0];
 
-        track = media.addTrack( "Track1" );
-        media.addTrack( "Track" + Math.random() );
+        track = media.addTrack( "Questions" );
+        media.addTrack( "Answers" );
         popcorn = media.popcorn.popcorn;
 
+        /*
+        tell quiz-answers editor what questions are available
+        */
+        window.addEventListener('message', function(e) {
+          var start, end, events, event, answers = [], i, j;
+          if (typeof e.data === 'object' && e.data.msg === 'request-quiz-questions') {
+            start = e.data.start;
+            end = e.data.end;
+            if (popcorn && popcorn.data && popcorn.data.trackEvents) {
+              events = popcorn.data.trackEvents.byStart.filter(function(evt) {
+                return evt._natives && evt._natives.type === 'quiz' &&
+                  evt.start <= end && evt.end > start;
+              });
+
+              for (i = 0; i < events.length; i++) {
+                event = events[i];
+                if (event.answers) {
+                  for (j = 0; j < event.answers.length; j++) {
+                    answers.push({
+                      i: j,
+                      answer: event.answers[j]
+                    });
+                  }
+                }
+              }
+
+              e.source.postMessage({
+                msg: 'response-quiz-questions',
+                answers: answers
+              }, '*');
+            }
+          }
+        }, false);
+
         popcorn.defaults('quiz', {
+          onSetup: setupQuiz,
           onStart: startQuiz,
           onEnd: endQuiz,
           onAnswer: answerQuiz
@@ -152,28 +193,6 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             explanation: 'Explanation goes here.'
           }
         });
-
-
-        /*
-        var event = track.addTrackEvent({
-          type: "text",
-          popcornOptions: {
-            start: 0,
-            end: 3,
-            text: "test",
-            target: "Area1"
-          }
-        });
-
-        butter.tracks[ 2 ].addTrackEvent({
-          type: "footnote",
-          popcornOptions: {
-            start: 1,
-            end: 2,
-            target: "Area2"
-          }
-        });
-      */
 
       }
 

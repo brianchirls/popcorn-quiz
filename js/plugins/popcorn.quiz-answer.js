@@ -60,5 +60,30 @@
 			}
 			//_teardown isn't necessary hear, since we didn't actually add anything
 		};
+	}, { //manifest
+		about: {
+			name: "Popcorn Quiz Answer Plugin",
+			version: "0.1",
+			author: "Brian Chirls, @bchirls",
+			website: "http://github.com/brianchirls"
+		},
+		options: {
+			question: {
+				elem: "input",
+				type: "number",
+				label: "Question"
+			},
+			target: "questions",
+			start: {
+				elem: "input",
+				type: "number",
+				label: "Start Time"
+			},
+			end: {
+				elem: "input",
+				type: "number",
+				label: "End Time"
+			}
+		}
 	});
 })( Popcorn );

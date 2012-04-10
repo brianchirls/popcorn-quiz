@@ -195,7 +195,7 @@
 		}
 
 		button = document.createElement('button');
-		button.appendChild(document.createTextNode('Next Question >>'));
+		button.appendChild(document.createTextNode('Continue >>'));
 		button.addEventListener('click', proceed);
 		element.appendChild(button);
 
@@ -230,5 +230,45 @@
 				}
 			}
 		};
+	}, { //manifest
+		about: {
+			name: "Popcorn Quiz Plugin",
+			version: "0.1",
+			author: "Brian Chirls, @bchirls",
+			website: "http://github.com/brianchirls"
+		},
+		options: {
+			question: {
+				elem: "input",
+				type: "textarea",
+				label: "Question"
+			},
+			explanation: {
+				elem: "input",
+				type: "textarea",
+				label: "Explanation"
+			},
+			answers: {
+				elem: "input",
+				type: "textarea",
+				label: "Answers"
+			},
+			correct: {
+				elem: "input",
+				type: "number",
+				label: "Correct Answer"
+			},
+			target: "questions",
+			start: {
+				elem: "input",
+				type: "number",
+				label: "Start Time"
+			},
+			end: {
+				elem: "input",
+				type: "number",
+				label: "End Time"
+			}
+		}
 	});
 })( Popcorn, window );
