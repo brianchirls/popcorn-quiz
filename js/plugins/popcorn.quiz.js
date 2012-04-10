@@ -110,7 +110,12 @@
 			return;
 		}
 
-		answers = base.toArray(options.answers, /\n\r/);
+		//clone answers array to be safe
+		if (Object.prototype.toString.call(options.answers) === '[object Array]') {
+			answers = options.answers.slice(0);
+		} else {
+			answers = base.toArray(options.answers, /\n\r/);
+		}
 
 		if (!answers || !answers.length) {
 			return;
@@ -222,7 +227,6 @@
 			_teardown: function( options ) {
 				if (base.container && base.container.parentNode) {
 					base.container.parentNode.removeChild(base.container);
-					
 				}
 			}
 		};
