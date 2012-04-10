@@ -84,10 +84,8 @@
 			base.addClass(answers[i].label.parentNode, 'answered');
 			if (base.options.correct === i) {
 				status = 'right';
-				options.correct = true;
 			} else {
 				status = 'wrong';
-				options.correct = false;
 			}
 
 			base.addClass(base.container, status);
@@ -97,10 +95,10 @@
 
 			if (typeof options.onAnswer === 'function') {
 				if (Popcorn.plugin.debug) {
-					options.onAnswer(options);
+					options.onAnswer.call(base, options);
 				} else {
 					try {
-						options.onAnswer(options);
+						options.onAnswer.call(base, options, answer);
 					} catch (e) {
 						console.log('Error in quiz onAnswer event:' + e.message);
 					}
@@ -112,7 +110,12 @@
 			return;
 		}
 
-		answers = base.toArray(options.answers, /\n\r/);
+		//clone answers array to be safe
+		if (Object.prototype.toString.call(options.answers) === '[object Array]') {
+			answers = options.answers.slice(0);
+		} else {
+			answers = base.toArray(options.answers, /\n\r/);
+		}
 
 		if (!answers || !answers.length) {
 			return;
@@ -222,6 +225,9 @@
 				}
 			},
 			_teardown: function( options ) {
+				if (base.container && base.container.parentNode) {
+					base.container.parentNode.removeChild(base.container);
+				}
 			}
 		};
 	});

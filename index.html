@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Popcorn Quiz</title>
+		<base href="butter/templates/"/>
 		<style type="text/css">
 
 		.popcorn-quiz {
@@ -27,6 +28,7 @@
 		*/
 
 		</style>
+		<link rel="stylesheet" href="../css/butter.ui.css" data-butter-exclude />
 		<!--[if IE 8]>
 		<script type="text/javascript" src="js/external/popcorn.js"></script>
 		<![endif]-->
@@ -34,19 +36,23 @@
 	<body>
 		<h1>Pop Quiz</h1><!-- quiz title goes in here -->
 		<h2 id="question-title"></h2>
-		<audio id="audio" controls>
-			<source src="audio/robotquiz.mp3" type="audio/mp3"/>
-			<source src="audio/robotquiz.ogg" type="audio/ogg"/>
+		<h3 id="score"></h3>
+		<audio id="audio" controls data-butter="media">
+			<source src="../../audio/robotquiz.mp3" type="audio/mp3"/>
+			<source src="../../audio/robotquiz.ogg" type="audio/ogg"/>
 			<!-- todo: flash audio player for ie8 -->
 		</audio>
-		<div id="questions"></div>
-		<div id="video1"></div>
-		<div id="video2"></div>
+		<div id="questions" data-butter="target"></div>
+		<div id="video1" data-butter="target"></div>
+		<div id="video2" data-butter="target"></div>
 
 	</body>
-	<script type="text/javascript" src="js/external/popcorn.js"></script>
-	<script type="text/javascript" src="js/external/popcorn-base.js"></script>
-	<script type="text/javascript" src="js/plugins/popcorn.quiz.js"></script>
-	<script type="text/javascript" src="js/plugins/popcorn.quiz-answer.js"></script>
-	<script type="text/javascript" src="js/script.js"></script>
+	<script type="text/javascript" src="../../js/external/popcorn.js"></script>
+	<script type="text/javascript" src="../../js/external/popcorn-base.js"></script>
+	<script type="text/javascript" src="../../js/plugins/popcorn.quiz.js"></script>
+	<script type="text/javascript" src="../../js/plugins/popcorn.quiz-answer.js"></script>
+
+	<script type="text/javascript" src="../src/butter.js" data-butter-exclude></script>
+	<script type="text/javascript" src="../../js/template.js"></script>
+	<script src="https://browserid.org/include.js" type="text/javascript"></script>
 </html>

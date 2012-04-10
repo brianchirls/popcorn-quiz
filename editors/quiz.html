@@ -1,0 +1,244 @@
+<!--  This Source Code Form is subject to the terms of the MIT license
+      If a copy of the MIT license was not distributed with this file, you can
+      obtain one at http://www.mozillapopcorn.org/butter-license.txt -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      table {
+        font-family: helvetica !important;
+        color: #fff !important;
+        border: white solid 1px;
+      }
+
+      table:first-child {
+        float: left;
+        margin-right: 1em;
+      }
+
+      #answers > tr > td:first-child {
+        text-align: right;
+      }
+
+      td {
+        vertical-align: top;
+      }
+
+      p#message {
+        color: #FF0000;
+      }
+    </style>
+    <script type="text/javascript" src="../butter/src/dialog/dialog-comm.js"></script>
+    <script type="text/javascript">
+      (function(){
+        var _comm = new Comm(),
+          elementNames = ['target', 'question', 'explanation', 'answers', 'correct'],
+          elements = {},
+          start, end;
+
+        document.addEventListener( "DOMContentLoaded", function( e ){
+
+          function sendData( alsoClose ){
+            alsoClose = !!alsoClose; 
+            var i, answerInputs,
+              answers = [], popcornOptions;
+
+            popcornOptions = {
+              start: start,
+              end: end,
+              question: elements.question.value,
+              explanation: elements.explanation.value,
+              target: elements.target.value,
+              answers: answers
+            };
+
+            answerInputs = document.querySelectorAll('#answers input');
+            for (i = 0; i < answerInputs.length; i++) {
+              if (answerInputs[i].value) {
+                answers.push(answerInputs[i].value);
+                if (i === elements.correct.value) {
+                  popcornOptions.correct = answers.length - 1;
+                }
+              }
+            }
+            popcornOptions.correct = answers.indexOf(popcornOptions.correct);
+
+            document.getElementById( "message" ).innerHTML = "";
+            _comm.send( "submit", {
+              eventData: popcornOptions,
+              alsoClose: alsoClose
+            });
+          } //sendData
+
+          function okPressed( e ) {
+            sendData( true );
+          }
+
+          function cancelPressed( e ) {
+            _comm.send( "cancel" );
+          }
+
+          function updateTrackEvent( e ){
+            var popcornOptions = e.data.popcornOptions || e.data,
+                targets = e.data.targets,
+                /* mediaName = "Current Media Element", */
+                answers = popcornOptions.answers || [],
+                i, l, input, row, col1, col2;
+
+            start = popcornOptions.start;
+            end = popcornOptions.end;
+
+            /*
+            if( media && media.name && media.target ){
+              mediaName += " (\"" + media.name + "\": " + media.target + ")";
+            } //if
+            */
+
+            //load target values
+            if (targets) {
+              for( i = 0, l = targets.length; i < l; i++ ) {
+                if ( i < elements.target.childNodes.length ) {
+                  input = elements.target.childNodes[i];
+                  input.childNodes[0].nodeValue = targets[i];
+                } else {
+                  input = document.createElement( "OPTION" );
+                  input.appendChild( document.createTextNode( targets[i] ) );
+                  elements.target.appendChild(input);
+                }
+                input.value = targets[ i ];
+                if( popcornOptions.target === targets[ i ] ) {
+                  elements.target.value = targets[ i ];
+                }
+              }
+              //delete any extra options
+              for (i = l; i < elements.target.childNodes.length; i++) {
+                elements.target.removeChild(elements.target.childNodes[i]);
+              }
+            }
+
+            elements.question.value = popcornOptions.question || '';
+            elements.explanation.value = popcornOptions.explanation || '';
+
+            //load questions
+            for( i = 0, l = answers.length + 1; i < l; i++ ) {
+              if ( i < elements.answers.childNodes.length ) {
+                row = elements.answers.childNodes[i];
+                col1 = row.childNodes[0];
+                col2 = row.childNodes[1];
+                input = col2.childNodes[0];
+              } else {
+                row = document.createElement('tr');
+                col1 = document.createElement('td');
+                col1.appendChild(document.createTextNode(i + 1 + ')'));
+                col2 = document.createElement('td');
+                input = document.createElement('input');
+                input.type = 'text';
+                input.addEventListener( "change", function( e ){
+                  sendData( false );
+                }, false );
+                row.appendChild(col1);
+                row.appendChild(col2);
+                col2.appendChild(input);
+                elements.answers.appendChild(row);
+              }
+              if (answers[i] === undefined) {
+                input.value = '';
+              } else {
+                input.value = answers[i];
+              }
+            }
+            for (i = l; i < elements.answers.childNodes.length; i++) {
+              elements.answers.removeChild(elements.answers.childNodes[i]);
+            }
+
+            for( i = 0, l = answers.length; i < l; i++ ) {
+              if ( i < elements.correct.childNodes.length ) {
+                option = elements.correct.childNodes[i];
+                option.childNodes[0].nodeValue = answers[i];
+              } else {
+                option = document.createElement( "OPTION" );
+                option.value = i;
+                option.appendChild( document.createTextNode( answers[i] ) );
+                elements.correct.appendChild(option);
+              }
+              option.value = answers[ i ];
+              if( popcornOptions.correct === i ) {
+                elements.correct.selectedIndex = i;
+              }
+            }
+            //delete any extra options
+            for (i = l; i < elements.correct.childNodes.length; i++) {
+              elements.correct.removeChild(elements.correct.childNodes[i]);
+            }
+          }
+
+          var name, i;
+
+          for (i = 0; i < elementNames.length; i++) {
+            name = elementNames[i];
+            elements[name] = document.getElementById(name);
+            name = elements[name];
+            if (name.nodeName === 'INPUT' || name.nodeName === 'TEXTAREA' ||
+              name.nodeName === 'SELECT') {
+                name.addEventListener( "change", function( e ){
+                  sendData( false );
+                }, false );
+            }
+          }
+
+          document.addEventListener( "keydown", function( e ) {
+            if( e.keyCode === 13 ) {
+              okPressed( e );
+            } else if( e.keyCode === 27 ) {
+              cancelPressed( e );
+            }
+          }, false);
+
+          _comm.listen( "trackeventupdated", updateTrackEvent);
+          _comm.listen( "trackeventdata", updateTrackEvent);
+
+          _comm.listen( "trackeventupdatefailed", function( e ) {
+            if( e.data === "invalidtime" ){
+              document.getElementById( "message" ).innerHTML = "You've entered an invalid start or end time. Please verify that they are both greater than 0, the end time is equal to or less than the media's duration, and that the start time is less than the end time.";
+            } //if
+          });
+
+        }, false );
+      })();
+    </script>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <td>Target</td>
+        <td><select id="target"></select></td>
+      </tr>
+      <tr>
+        <td>Question</td>
+        <td><textarea id="question"></textarea></td>
+      </tr>
+      <tr>
+        <td>Explanation</td>
+        <td><textarea id="explanation"></textarea></td>
+      </tr>
+    </table>
+
+    <table>
+      <thead>
+        <tr>
+          <td colspan="2">Answers</td>
+        </tr>
+      </thead>
+      <tbody id="answers"></tbody>
+      <tfoot>
+        <tr>
+          <td>Answer</td>
+          <td><select id="correct"></select></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <p id="message"></p>
+  </body>
+</html>
