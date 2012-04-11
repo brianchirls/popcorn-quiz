@@ -1,0 +1,9 @@
+/*
+
+Styles that will only apply when template is being edited in Butter/Popcorn Maker
+
+*/
+#media {
+	display: block;
+	margin: 20px 0;
+}

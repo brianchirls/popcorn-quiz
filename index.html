@@ -14,7 +14,7 @@
 			border-radius: 12px;
 		}
 
-		#audio {
+		#media {
 			display: none;
 		}
 
@@ -37,19 +37,12 @@
 
 		</style>
 		<link rel="stylesheet" href="../css/butter.ui.css" data-butter-exclude />
-		<!--[if IE 8]>
-		<script type="text/javascript" src="js/external/popcorn.js"></script>
-		<![endif]-->
+		<link rel="stylesheet" href="../../css/butter.css" data-butter-exclude />
 	</head>
 	<body>
 		<h1>Pop Quiz</h1><!-- quiz title goes in here -->
 		<h2 id="question-title"></h2>
 		<h3 id="score"></h3>
-		<audio id="audio" controls data-butter="media">
-			<source src="../../audio/robotquiz.mp3" type="audio/mp3"/>
-			<source src="../../audio/robotquiz.ogg" type="audio/ogg"/>
-			<!-- todo: flash audio player for ie8 -->
-		</audio>
 		<div id="questions" data-butter="target"></div>
 
 		<div>
@@ -59,7 +52,11 @@
 
 		<div id="video1" data-butter="target"></div>
 		<div id="video2" data-butter="target"></div>
-
+		<audio id="media" controls data-butter="media">
+			<source src="../../audio/robotquiz.mp3" type="audio/mp3"/>
+			<source src="../../audio/robotquiz.ogg" type="audio/ogg"/>
+			<!-- todo: flash audio player for ie8 -->
+		</audio>
 	</body>
 	<script type="text/javascript" src="../../js/external/popcorn.js"></script>
 	<script type="text/javascript" src="../../js/external/popcorn-base.js"></script>
