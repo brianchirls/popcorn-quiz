@@ -1,11 +1,51 @@
 (function (Popcorn, window) {
 
-"use strict";
+	"use strict";
 
 	var styleSheet,
 		console = window.console,
-		sounds,
-		isiPad = navigator.userAgent.match(/iPad/i);
+		sounds = {},
+		isiPad = navigator.userAgent.match(/iPad/i),
+		gonnaClean = false;
+
+	/*
+	djb2 hash function for indexing combined audio file paths
+	http://www.cse.yorku.ca/~oz/hash.html
+	*/
+	function hash(s) {
+		var i, c, h = 5381;
+		for (i = 0; i < s.length; i++) {
+			c = s.charCodeAt(i);
+			h = ((h << 5) + h) + c; /* hash * 33 + c */
+		}
+		return h;
+	}
+
+	/*
+	Only keep one copy of each set of sounds. It's a pretty safe bet that we'll only need one at a time.
+	This will delete sounds we don't need anymore, but since Butter will delete and re-create
+	similar events many times in quick succession, we hold on to them for a few seconds in case
+	we need them again soon.
+	*/
+	function cleanUpSounds() {
+
+		function doClean() {
+			var i;
+
+			for (i in sounds) {
+				if (sounds.hasOwnProperty(i) && !sounds[i].count) {
+					console.log('Unloading sounds \n' + sounds[i].urls.join('\n'));
+					delete sounds[i];
+				}
+			}
+			gonnaClean = false;
+		}
+
+		if (!gonnaClean) {
+			gonnaClean = true;
+			setTimeout(doClean, 10000);
+		}
+	}
 
 	Popcorn.basePlugin( 'quiz' , function(options, base) {
 		var popcorn = this,
@@ -16,13 +56,42 @@
 			button,
 			element,
 			explanation,
+			rightSound, wrongSound,
 			allowPause = false;
 
 		function loadSounds() {
-			var name, sound, i, obj, source, rewind;
+			var name, sound, i, rewind;
 
-			if (sounds || isiPad) {
-				//already started loading
+			function loadSound(urls) {
+				var obj, h, source;
+
+				h = hash(urls.join('\n'));
+				obj = sounds[h];
+				if (obj) {
+					obj.count++;
+					return obj;
+				}
+
+				obj = {
+					count: 1,
+					hash: h,
+					urls: urls.slice(0)
+				};
+				obj.audio = document.createElement('audio');
+				obj.audio.preload = true;
+				obj.audio.addEventListener('ended', rewind, false);
+				for (i = 0; i < urls.length; i++) {
+					source = document.createElement('source');
+					source.src = urls[i];
+					obj.audio.appendChild(source);
+				}
+
+				sounds[h] = obj;
+				return obj;
+			}
+
+			//No sounds in iPad because it can't handle two html5 media elements at once
+			if (isiPad) {
 				return;
 			}
 
@@ -31,32 +100,8 @@
 				this.currentTime = 0;
 			};
 
-			sounds = {
-				right: {
-					urls: [
-						'audio/ding.mp3',
-						'audio/ding.ogg'
-					]
-				},
-				wrong: {
-					urls: [
-						'audio/buzzer.mp3',
-						'audio/buzzer.ogg'
-					]
-				}
-			};
-
-			for (name in sounds) {
-				obj = sounds[name];
-				obj.audio = document.createElement('audio');
-				obj.audio.preload = true;
-				obj.audio.addEventListener('ended', rewind, false);
-				for (i = 0; i < obj.urls.length; i++) {
-					source = document.createElement('source');
-					source.src = obj.urls[i];
-					obj.audio.appendChild(source);
-				}
-			}
+			rightSound = loadSound(rightSound);
+			wrongSound = loadSound(wrongSound);
 		}
 
 		function proceed() {
@@ -68,7 +113,7 @@
 		}
 
 		function clickAnswer(i) {
-			var status;
+			var status, sound;
 
 			if (answer >= 0) {
 				//don't re-answer this until reset
@@ -84,13 +129,15 @@
 			base.addClass(answers[i].label.parentNode, 'answered');
 			if (base.options.correct === i) {
 				status = 'right';
+				sound = rightSound;
 			} else {
 				status = 'wrong';
+				sound = wrongSound;
 			}
 
 			base.addClass(base.container, status);
-			if (sounds && sounds[status] && sounds[status].audio && sounds[status].audio.networkState > 0) {
-				sounds[status].audio.play();
+			if (sound && sound.audio && sound.audio.readyState) {
+				sound.audio.play();
 			}
 
 			if (typeof options.onAnswer === 'function') {
@@ -119,6 +166,22 @@
 
 		if (!answers || !answers.length) {
 			return;
+		}
+
+		rightSound = base.toArray(options.rightSound);
+		if (!rightSound || !rightSound.length) {
+			rightSound = [
+				'audio/ding.mp3',
+				'audio/ding.ogg'
+			];
+		}
+
+		wrongSound = base.toArray(options.wrongSound);
+		if (!wrongSound || !wrongSound.length) {
+			wrongSound = [
+				'audio/buzzer.mp3',
+				'audio/buzzer.ogg'
+			];
 		}
 
 		loadSounds();
@@ -225,6 +288,14 @@
 				}
 			},
 			_teardown: function( options ) {
+				if (rightSound) {
+					rightSound.count--;
+				}
+				if (wrongSound) {
+					wrongSound.count--;
+				}
+				cleanUpSounds();
+
 				if (base.container && base.container.parentNode) {
 					base.container.parentNode.removeChild(base.container);
 				}
