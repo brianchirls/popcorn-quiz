@@ -5,5 +5,5 @@ Styles that will only apply when template is being edited in Butter/Popcorn Make
 */
 #media {
 	display: block;
-	margin: 20px 0;
+	margin: 40px 20px;
 }
