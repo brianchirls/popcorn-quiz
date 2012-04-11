@@ -38,23 +38,21 @@
             var i, answerInputs,
               answers = [], popcornOptions;
 
+            if (elements.answer.childNodes.length) {
+              i = elements.answer.selectedIndex;
+              if (i >= 0) {
+                answerIndex = parseFloat(elements.answer.childNodes[i].value);
+              }
+            } else {
+              answerIndex = parseFloat(elements.answer.value);
+            }
+
             popcornOptions = {
               start: start,
               end: end,
-              answer: elements.answer.value,
+              answer: answerIndex,
               target: elements.target.value
             };
-
-            answerInputs = document.querySelectorAll('#answers input');
-            for (i = 0; i < answerInputs.length; i++) {
-              if (answerInputs[i].value) {
-                answers.push(answerInputs[i].value);
-                if (i === elements.correct.value) {
-                  popcornOptions.correct = answers.length - 1;
-                }
-              }
-            }
-            popcornOptions.correct = answers.indexOf(popcornOptions.correct);
 
             document.getElementById( "message" ).innerHTML = "";
             _comm.send( "submit", {
@@ -150,6 +148,10 @@
                 } else {
                   elements.answer.style.display = '';
                   elements.index.style.display = '';
+                }
+
+                if (answerIndex === undefined) {
+                  sendData();
                 }
               }
             }, false);
