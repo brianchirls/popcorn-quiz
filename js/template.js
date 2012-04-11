@@ -84,7 +84,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         */
         window.addEventListener('message', function(e) {
           var start, end, events, event, answers = [], i, j;
-          if (typeof e.data === 'object' && e.data.msg === 'request-quiz-questions') {
+          if (typeof e.data === 'object' && e.data.msg === 'request-quiz-answers') {
             start = e.data.start;
             end = e.data.end;
             if (popcorn && popcorn.data && popcorn.data.trackEvents) {
@@ -106,7 +106,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
               }
 
               e.source.postMessage({
-                msg: 'response-quiz-questions',
+                msg: 'response-quiz-answers',
                 answers: answers
               }, '*');
             }
@@ -144,7 +144,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             start: 11.338,
             end: 12.38,
             target: 'questions',
-            question: 0
+            answer: 0
           }
         });
 
@@ -154,7 +154,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             start: 12.38,
             end: 13.512,
             target: 'questions',
-            question: 1
+            answer: 1
           }
         });
 
@@ -164,7 +164,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             start: 13.588,
             end: 14.504,
             target: 'questions',
-            question: 2
+            answer: 2
           }
         });
 
@@ -174,7 +174,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             start: 14.637,
             end: 15.924,
             target: 'questions',
-            question: 3
+            answer: 3
           }
         });
 

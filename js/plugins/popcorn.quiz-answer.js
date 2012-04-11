@@ -13,7 +13,7 @@
 			return;
 		}
 
-		if (options.question === undefined || isNaN(options.question) || options.question < 0) {
+		if (options.answer === undefined || isNaN(options.answer) || options.answer < 0) {
 			return;
 		}
 
@@ -32,7 +32,7 @@
 			selector = '#' + options.target.id + ' ';
 		}
 
-		selector += '.popcorn-quiz.active .answer-' + options.question;
+		selector += '.popcorn-quiz.active .answer-' + options.answer;
 
 		return {
 			start: function( event, options ) {
@@ -68,10 +68,10 @@
 			website: "http://github.com/brianchirls"
 		},
 		options: {
-			question: {
+			answer: {
 				elem: "input",
 				type: "number",
-				label: "Question"
+				label: "Answer"
 			},
 			target: "questions",
 			start: {

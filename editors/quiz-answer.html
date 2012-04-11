@@ -33,7 +33,7 @@
     <script type="text/javascript">
       (function(){
         var _comm = new Comm(),
-          elementNames = ['target', 'question', 'index'],
+          elementNames = ['target', 'answer', 'index'],
           elements = {},
           start, end, answerIndex;
 
@@ -47,7 +47,7 @@
             popcornOptions = {
               start: start,
               end: end,
-              question: elements.question.value,
+              answer: elements.answer.value,
               target: elements.target.value
             };
 
@@ -84,10 +84,12 @@
 
             start = popcornOptions.start;
             end = popcornOptions.end;
+            answerIndex = popcornOptions.answer;
+            elements.index.value = answerIndex;
 
             if (window.parent) {
               window.parent.postMessage({
-                msg: 'request-quiz-questions',
+                msg: 'request-quiz-answers',
                 start: start,
                 end: end
               }, '*');
@@ -170,8 +172,8 @@
         <td><select id="target"></select></td>
       </tr>
       <tr>
-        <td>Question</td>
-        <td><select id="question"></select><input type="text" id="index"/></td>
+        <td>Answer</td>
+        <td><select id="answer"></select><input type="text" id="index"/></td>
       </tr>
     </table>
     <p id="message"></p>
