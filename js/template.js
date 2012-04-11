@@ -5,7 +5,8 @@ document.addEventListener( "DOMContentLoaded", function( e ){
   Butter({
     config: "../../quiz.conf",
     ready: function( butter ){
-      var media = butter.media[ 0 ];
+      var playbutton, playing = false,
+        media = butter.media[ 0 ];
 
       function start(){
         var track, popcorn, title, score, questions = [];
@@ -78,6 +79,32 @@ document.addEventListener( "DOMContentLoaded", function( e ){
         track = media.addTrack( "Questions" );
         media.addTrack( "Answers" );
         popcorn = media.popcorn.popcorn;
+
+        popcorn.on('play', function() {
+          playing = true;
+          playbutton.className = 'playing';
+          playbutton.style.visibility = 'visible';
+        });
+
+        popcorn.on('pause', function() {
+          if (playing) {
+            playbutton.style.visibility = 'hidden';
+          }
+        });
+
+        playbutton = document.getElementById('playpause');
+        playbutton.addEventListener('click', function() {
+          if (playing) {
+            if (!popcorn.paused()) {
+              playing = false;
+              popcorn.pause();
+              playbutton.className = '';
+            }
+            return;
+          }
+
+          popcorn.play();
+        }, false);
 
         /*
         tell quiz-answers editor what questions are available

@@ -6,6 +6,45 @@
 		<base href="butter/templates/"/>
 		<style type="text/css">
 
+		/*
+		basic styling inspired by Bootstrap
+		*/
+
+		body {
+			font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+			margin: 0;
+		}
+
+		header {
+			margin: 0 0 20px 0;
+			color: #FFFFFF;
+			padding: 4px 20px;
+			background-color: #2c2c2c;
+			background-image: -moz-linear-gradient(top, #333333, #222222);
+			background-image: -ms-linear-gradient(top, #333333, #222222);
+			background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#333333), to(#222222));
+			background-image: -webkit-linear-gradient(top, #333333, #222222);
+			background-image: -o-linear-gradient(top, #333333, #222222);
+			background-image: linear-gradient(top, #333333, #222222);
+			background-repeat: repeat-x;
+			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#333333', endColorstr='#222222', GradientType=0);
+			-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+			-moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+		}
+
+		header > h1 {
+			font-size: 20px;
+			padding: 4px 20px;
+			margin: 0;
+		}
+
+		header > h1, header > span {
+			width: 33%;
+			box-sizing: border-box;
+			display: inline-block;
+		}
+
 		.popcorn-quiz {
 			max-width: 768px;
 			margin: 0 auto;
@@ -19,7 +58,31 @@
 		}
 
 		#explanation-left {
-			float: left;
+			float: right;
+		}
+
+		#score {
+			text-align: right;
+		}
+
+		#playpause {
+			width: 24px;
+			height: 24px;
+			display: inline-block;
+			cursor: pointer;
+			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAZEQAAGREBkIelaAAAAAd0SU1FB9wECxUlKTsFfiUAAAEXSURBVDjLrZWhSgRRGEa/uwqLQUyCYDGJyWRWbD6BNqs+gN0nELvZKljE5AtYxaDJZnEFwwbLOQZ3cFZ2w87eH4a56dxz//nmv0kSYEE9BvpJoqZaAUNgAOxUhatD/+oe2KqyAdAGN3UOLNc0FmiWX8BpZ/spxu1NHoG9quCGP3rfqqudWzFdHkcJuqxlPMn+HThqyc0NHtsAeFHXGzCQXgMupXQJU0liKWUzyVuSG3Wt1+vNbfy/99/qVZIszmkcf89fkjwkOUzy2SUVY9kePU/qbo1UNIn4UM+ajzX1r5zR+ELt18zxnbo909yYAKa1Hqj7NaZbG3qiLjW97DqEaIGvgZW5h30L/KpuVLk91KI+Awe17tAfCooog9jyUKUAAAAASUVORK5CYII=);
+			background-repeat: no-repeat;
+			background-position: 0 0;
+			vertical-align: middle;
+			margin-left: 20px;
+		}
+
+		#playpause.playing {
+			background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAZEQAAGREBkIelaAAAAAd0SU1FB9wECxUnOo2NXXkAAACTSURBVDjL7ZExCgJBEASr7+43/kAj/Zo/0VR/o38w0si4TVYYx2PRA+GE7WgYanqbXlFkewssyowkgB44StoRVGEPkvYAQ+CXwCaA2AY4864VsI5s0ek5dPkigumIGpvV8SNNMi4VVXeTjMcqyLtWxUyr+D/j9nmtirlW8UmKb9ghvHizfYkJJPW27yPprpkFXtgHU5pXa3Be1bUAAAAASUVORK5CYII=);
+		}
+
+		#question-title {
+			text-align: center;
 		}
 
 		/*
@@ -40,9 +103,12 @@
 		<link rel="stylesheet" href="../../css/butter.css" data-butter-exclude />
 	</head>
 	<body>
-		<h1>Pop Quiz</h1><!-- quiz title goes in here -->
-		<h2 id="question-title"></h2>
-		<h3 id="score"></h3>
+		<header>
+			<h1>Pop Quiz<span id="playpause"></span></h1><!-- quiz title goes in here -->
+			
+			<span id="question-title"></span>
+			<span id="score"></span>
+		</header>
 		<div id="questions" data-butter="target"></div>
 
 		<div>
