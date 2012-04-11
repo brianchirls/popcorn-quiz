@@ -211,7 +211,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
             start: 16.05,
             end: 22.833,
             target: 'questions',
-            question: 'Which welder appeard in a Newt Gingrich ad?',
+            question: 'Which welder appeared in a Newt Gingrich ad?',
             answers: [
               'Left',
               'Right'
