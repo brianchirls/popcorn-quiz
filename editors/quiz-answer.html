@@ -27,7 +27,7 @@
     <script type="text/javascript">
       (function(){
         var _comm = new Comm(),
-          elementNames = ['target', 'answer', 'index'],
+          elementNames = ['target', 'answer', 'index', 'start', 'end'],
           elements = {},
           start, end, answerIndex;
 
@@ -48,8 +48,8 @@
             }
 
             popcornOptions = {
-              start: start,
-              end: end,
+              start: elements.start.value,
+              end: elements.end.value,
               answer: answerIndex,
               target: elements.target.value
             };
@@ -78,6 +78,8 @@
             end = popcornOptions.end;
             answerIndex = popcornOptions.answer;
             elements.index.value = answerIndex;
+            elements.start.value = start;
+            elements.end.value = end;
 
             if (window.parent) {
               window.parent.postMessage({
@@ -192,6 +194,14 @@
   </head>
   <body>
     <table>
+      <tr>
+        <td>Start Time</td>
+        <td><input id="start" type="text"/></td>
+      </tr>
+      <tr>
+        <td>End Time</td>
+        <td><input id="end" type="text"/></td>
+      </tr>
       <tr>
         <td>Target</td>
         <td><select id="target"></select></td>

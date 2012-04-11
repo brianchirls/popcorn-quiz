@@ -33,7 +33,7 @@
     <script type="text/javascript">
       (function(){
         var _comm = new Comm(),
-          elementNames = ['target', 'question', 'explanation', 'answers', 'correct'],
+          elementNames = ['target', 'question', 'explanation', 'answers', 'correct', 'start', 'end'],
           elements = {},
           start, end;
 
@@ -45,8 +45,8 @@
               answers = [], popcornOptions;
 
             popcornOptions = {
-              start: start,
-              end: end,
+              start: elements.start.value,
+              end: elements.end.value,
               question: elements.question.value,
               explanation: elements.explanation.value,
               target: elements.target.value,
@@ -88,6 +88,8 @@
 
             start = popcornOptions.start;
             end = popcornOptions.end;
+            elements.start.value = start;
+            elements.end.value = end;
 
             /*
             if( media && media.name && media.target ){
@@ -210,6 +212,14 @@
   </head>
   <body>
     <table>
+      <tr>
+        <td>Start Time</td>
+        <td><input id="start" type="text"/></td>
+      </tr>
+      <tr>
+        <td>End Time</td>
+        <td><input id="end" type="text"/></td>
+      </tr>
       <tr>
         <td>Target</td>
         <td><select id="target"></select></td>
