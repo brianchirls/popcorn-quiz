@@ -9,16 +9,10 @@
       table {
         font-family: helvetica !important;
         color: #fff !important;
-        border: white solid 1px;
       }
 
-      table:first-child {
-        float: left;
-        margin-right: 1em;
-      }
-
-      #answers > tr > td:first-child {
-        text-align: right;
+      #answer {
+        display: none;
       }
 
       td {
@@ -123,11 +117,40 @@
 
           if (window.parent) {
             window.addEventListener('message', function(e) {
-              var answers, i;
-              if (typeof e.data === 'object' && e.data.msg === 'response-quiz-questions' &&
+              var answers, answer, i;
+              if (typeof e.data === 'object' && e.data.msg === 'response-quiz-answers' &&
                 e.data.answers) {
 
                 answers = e.data.answers;
+
+                if (answers.length) {
+                  elements.index.style.display = 'none';
+
+                  for( i = 0, l = answers.length; i < l; i++ ) {
+                    answer = answers[i];
+                    if ( i < elements.answer.childNodes.length ) {
+                      input = elements.answer.childNodes[i];
+                      input.childNodes[0].nodeValue = answer.answer;
+                    } else {
+                      input = document.createElement( "OPTION" );
+                      input.appendChild( document.createTextNode( answer.answer ) );
+                      elements.answer.appendChild(input);
+                    }
+                    input.value = answer.i;
+                    if( answerIndex === answer.i ) {
+                      elements.answer.selectedIndex = i;
+                    }
+                  }
+                  //delete any extra options
+                  for (i = l; i < elements.answer.childNodes.length; i++) {
+                    elements.answer.removeChild(elements.answer.childNodes[i]);
+                  }
+
+                  elements.answer.style.display = 'inline';
+                } else {
+                  elements.answer.style.display = '';
+                  elements.index.style.display = '';
+                }
               }
             }, false);
           }
