@@ -3,7 +3,7 @@ document.addEventListener( "DOMContentLoaded", function( e ){
   Popcorn.plugin.debug = true;
 
   Butter({
-    config: "../../quiz.conf",
+    config: "quiz.conf",
     ready: function( butter ){
       var playbutton, playing = false,
         media = butter.media[ 0 ];

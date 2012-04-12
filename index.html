@@ -3,7 +3,6 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Popcorn Quiz</title>
-		<base href="butter/templates/"/>
 		<style type="text/css">
 
 		/*
@@ -131,8 +130,8 @@
 		*/
 
 		</style>
-		<link rel="stylesheet" href="../css/butter.ui.css" data-butter-exclude />
-		<link rel="stylesheet" href="../../css/butter.css" data-butter-exclude />
+		<link rel="stylesheet" href="butter/css/butter.ui.css" data-butter-exclude />
+		<link rel="stylesheet" href="css/butter.css" data-butter-exclude />
 	</head>
 	<body>
 		<header>
@@ -151,17 +150,17 @@
 		<div id="video1" data-butter="target"></div>
 		<div id="video2" data-butter="target"></div>
 		<audio id="media" controls data-butter="media">
-			<source src="../../audio/robotquiz.mp3" type="audio/mp3"/>
-			<source src="../../audio/robotquiz.ogg" type="audio/ogg"/>
+			<source src="audio/robotquiz.mp3" type="audio/mp3"/>
+			<source src="audio/robotquiz.ogg" type="audio/ogg"/>
 			<!-- todo: flash audio player for ie8 -->
 		</audio>
 	</body>
-	<script type="text/javascript" src="../../js/external/popcorn.js"></script>
-	<script type="text/javascript" src="../../js/external/popcorn-base.js"></script>
-	<script type="text/javascript" src="../../js/plugins/popcorn.quiz.js"></script>
-	<script type="text/javascript" src="../../js/plugins/popcorn.quiz-answer.js"></script>
+	<script type="text/javascript" src="js/external/popcorn.js"></script>
+	<script type="text/javascript" src="js/external/popcorn-base.js"></script>
+	<script type="text/javascript" src="js/plugins/popcorn.quiz.js"></script>
+	<script type="text/javascript" src="js/plugins/popcorn.quiz-answer.js"></script>
 
-	<script type="text/javascript" src="../src/butter.js" data-butter-exclude></script>
-	<script type="text/javascript" src="../../js/template.js" data-butter-exclude></script>
+	<script type="text/javascript" src="butter/src/butter.js" data-butter-exclude></script>
+	<script type="text/javascript" src="js/template.js" data-butter-exclude></script>
 	<script type="text/javascript" src="https://browserid.org/include.js" data-butter-exclude></script>
 </html>
